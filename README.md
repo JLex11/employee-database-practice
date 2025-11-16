@@ -13,10 +13,47 @@ Una aplicación web moderna desarrollada con Astro.js y Tailwind CSS 4 para gest
 ## Requisitos Previos
 
 - Node.js (v18 o superior)
-- PostgreSQL instalado y corriendo
+- MySQL 8.0+ o PostgreSQL (elige uno)
 - npm o pnpm
 
-## Instalación
+## 🚀 Instalación Rápida (MySQL - RECOMENDADO)
+
+### Opción A: Todo en un comando (MySQL)
+
+**¡La forma más fácil! No necesitas crear nada manualmente.**
+
+```bash
+# 1. Importar base de datos (crea TODO automáticamente)
+mysql -u root -p < empresa_rrhh_export_completo.sql
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Configurar variables de entorno
+cp .env.mysql.example .env
+
+# 4. Cambiar imports en archivos API
+# En src/pages/api/empleados/index.ts
+# En src/pages/api/empleados/[id].ts
+# Cambiar: import { db } from '../../../lib/db';
+# Por:     import { db } from '../../../lib/db-mysql';
+
+# 5. Iniciar aplicación
+npm run dev
+```
+
+**¡Listo!** La base de datos incluye 5 empleados de ejemplo.
+
+**Credenciales creadas automáticamente:**
+- Host: `localhost`
+- Puerto: `3306`
+- Base de datos: `empresa_rrhh`
+- Usuario: `admin_rrhh`
+- Contraseña: `Rrhh2024$ecure`
+
+---
+
+## Instalación Manual (PostgreSQL)
 
 ### 1. Clonar el repositorio
 
@@ -168,7 +205,8 @@ Cada empleado tiene un avatar único basado en su nombre y apellido.
 - **Astro.js**: Framework web moderno
 - **Tailwind CSS 4**: Framework de CSS utility-first
 - **TypeScript**: Tipado estático para JavaScript
-- **PostgreSQL**: Base de datos relacional
+- **MySQL / PostgreSQL**: Base de datos relacional (soporta ambas)
+- **mysql2**: Cliente MySQL para Node.js
 - **node-postgres (pg)**: Cliente PostgreSQL para Node.js
 - **DiceBear API**: Generación de avatares
 
