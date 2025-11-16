@@ -1,0 +1,326 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Gestión de Empleados">
+  <div class="container mx-auto px-4 py-8 max-w-7xl">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">Sistema de Gestión de Empleados</h1>
+      <p class="text-gray-600">Administra la información de tus empleados de manera sencilla</p>
+    </header>
+
+    <!-- Botón para agregar nuevo empleado -->
+    <div class="mb-6">
+      <button
+        id="btnNuevoEmpleado"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-200 ease-in-out transform hover:scale-105"
+      >
+        + Agregar Nuevo Empleado
+      </button>
+    </div>
+
+    <!-- Modal para agregar/editar empleado -->
+    <div id="modalEmpleado" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 id="modalTitulo" class="text-2xl font-bold text-gray-800">Nuevo Empleado</h2>
+          <button id="btnCerrarModal" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <form id="formEmpleado" class="space-y-4">
+          <input type="hidden" id="empleadoId" />
+
+          <div>
+            <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+            <input
+              type="text"
+              id="nombre"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="apellido" class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+            <input
+              type="text"
+              id="apellido"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              id="email"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="direccion" class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <input
+              type="text"
+              id="direccion"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button
+              type="submit"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-200"
+            >
+              Guardar
+            </button>
+            <button
+              type="button"
+              id="btnCancelar"
+              class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-md transition duration-200"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Lista de empleados -->
+    <div id="loadingState" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p class="mt-4 text-gray-600">Cargando empleados...</p>
+    </div>
+
+    <div id="errorState" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+      <p class="font-semibold">Error al cargar empleados</p>
+      <p class="text-sm">Por favor, verifica la conexión a la base de datos y las variables de entorno.</p>
+    </div>
+
+    <div id="listaEmpleados" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Los empleados se cargarán aquí dinámicamente -->
+    </div>
+
+    <div id="emptyState" class="hidden text-center py-12 bg-white rounded-lg shadow-sm">
+      <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+      </svg>
+      <h3 class="mt-4 text-lg font-medium text-gray-900">No hay empleados registrados</h3>
+      <p class="mt-2 text-gray-500">Comienza agregando tu primer empleado.</p>
+    </div>
+  </div>
+
+  <script>
+    interface Empleado {
+      idempleado: number;
+      nombre: string;
+      apellido: string;
+      email: string;
+      direccion: string;
+    }
+
+    // Función para obtener avatar desde DiceBear API
+    function getAvatarUrl(nombre: string, apellido: string): string {
+      const seed = `${nombre}-${apellido}`;
+      return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
+    }
+
+    // Elementos del DOM
+    const modalEmpleado = document.getElementById('modalEmpleado')!;
+    const modalTitulo = document.getElementById('modalTitulo')!;
+    const btnNuevoEmpleado = document.getElementById('btnNuevoEmpleado')!;
+    const btnCerrarModal = document.getElementById('btnCerrarModal')!;
+    const btnCancelar = document.getElementById('btnCancelar')!;
+    const formEmpleado = document.getElementById('formEmpleado') as HTMLFormElement;
+    const listaEmpleados = document.getElementById('listaEmpleados')!;
+    const loadingState = document.getElementById('loadingState')!;
+    const errorState = document.getElementById('errorState')!;
+    const emptyState = document.getElementById('emptyState')!;
+
+    // Variables globales
+    let empleados: Empleado[] = [];
+    let empleadoEditando: number | null = null;
+
+    // Cargar empleados
+    async function cargarEmpleados() {
+      try {
+        loadingState.classList.remove('hidden');
+        errorState.classList.add('hidden');
+        listaEmpleados.classList.add('hidden');
+        emptyState.classList.add('hidden');
+
+        const response = await fetch('/api/empleados');
+        if (!response.ok) throw new Error('Error al cargar empleados');
+
+        empleados = await response.json();
+
+        loadingState.classList.add('hidden');
+
+        if (empleados.length === 0) {
+          emptyState.classList.remove('hidden');
+        } else {
+          renderizarEmpleados();
+          listaEmpleados.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        loadingState.classList.add('hidden');
+        errorState.classList.remove('hidden');
+      }
+    }
+
+    // Renderizar lista de empleados
+    function renderizarEmpleados() {
+      listaEmpleados.innerHTML = empleados.map(emp => `
+        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+          <div class="p-6">
+            <div class="flex items-center space-x-4 mb-4">
+              <img
+                src="${getAvatarUrl(emp.nombre, emp.apellido)}"
+                alt="Avatar de ${emp.nombre} ${emp.apellido}"
+                class="w-16 h-16 rounded-full bg-gray-200"
+              />
+              <div class="flex-1">
+                <h3 class="text-xl font-semibold text-gray-800">${emp.nombre} ${emp.apellido}</h3>
+                <p class="text-sm text-gray-500">ID: ${emp.idempleado}</p>
+              </div>
+            </div>
+
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-600">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-sm">${emp.email}</span>
+              </div>
+              <div class="flex items-center text-gray-600">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="text-sm">${emp.direccion}</span>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                onclick="editarEmpleado(${emp.idempleado})"
+                class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200 text-sm"
+              >
+                Editar
+              </button>
+              <button
+                onclick="eliminarEmpleado(${emp.idempleado})"
+                class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition duration-200 text-sm"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Abrir modal para nuevo empleado
+    btnNuevoEmpleado.addEventListener('click', () => {
+      empleadoEditando = null;
+      modalTitulo.textContent = 'Nuevo Empleado';
+      formEmpleado.reset();
+      modalEmpleado.classList.remove('hidden');
+    });
+
+    // Cerrar modal
+    function cerrarModal() {
+      modalEmpleado.classList.add('hidden');
+      formEmpleado.reset();
+      empleadoEditando = null;
+    }
+
+    btnCerrarModal.addEventListener('click', cerrarModal);
+    btnCancelar.addEventListener('click', cerrarModal);
+
+    // Editar empleado
+    (window as any).editarEmpleado = async (id: number) => {
+      try {
+        const response = await fetch(`/api/empleados/${id}`);
+        if (!response.ok) throw new Error('Error al cargar empleado');
+
+        const empleado: Empleado = await response.json();
+        empleadoEditando = id;
+        modalTitulo.textContent = 'Editar Empleado';
+
+        (document.getElementById('nombre') as HTMLInputElement).value = empleado.nombre;
+        (document.getElementById('apellido') as HTMLInputElement).value = empleado.apellido;
+        (document.getElementById('email') as HTMLInputElement).value = empleado.email;
+        (document.getElementById('direccion') as HTMLInputElement).value = empleado.direccion;
+
+        modalEmpleado.classList.remove('hidden');
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar el empleado');
+      }
+    };
+
+    // Eliminar empleado
+    (window as any).eliminarEmpleado = async (id: number) => {
+      if (!confirm('¿Estás seguro de que deseas eliminar este empleado?')) return;
+
+      try {
+        const response = await fetch(`/api/empleados/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) throw new Error('Error al eliminar empleado');
+
+        await cargarEmpleados();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al eliminar el empleado');
+      }
+    };
+
+    // Guardar empleado (crear o actualizar)
+    formEmpleado.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nombre = (document.getElementById('nombre') as HTMLInputElement).value;
+      const apellido = (document.getElementById('apellido') as HTMLInputElement).value;
+      const email = (document.getElementById('email') as HTMLInputElement).value;
+      const direccion = (document.getElementById('direccion') as HTMLInputElement).value;
+
+      try {
+        const url = empleadoEditando
+          ? `/api/empleados/${empleadoEditando}`
+          : '/api/empleados';
+
+        const method = empleadoEditando ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ nombre, apellido, email, direccion }),
+        });
+
+        if (!response.ok) throw new Error('Error al guardar empleado');
+
+        cerrarModal();
+        await cargarEmpleados();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al guardar el empleado');
+      }
+    });
+
+    // Cargar empleados al iniciar
+    cargarEmpleados();
+  </script>
+</Layout>
