@@ -1,76 +1,87 @@
-# Sistema de Gestión de Empleados
+# Employee Management System
 
-Una aplicación web moderna desarrollada con Astro.js y Tailwind CSS 4 para gestionar información de empleados.
+A modern web application built with Astro.js and Tailwind CSS 4 to manage employee information.
 
-## Características
+## Features
 
-- **CRUD Completo**: Crear, Leer, Actualizar y Eliminar empleados
-- **Interfaz Moderna**: Diseño responsive con Tailwind CSS 4
-- **Avatares Dinámicos**: Generación automática de avatares usando DiceBear API
-- **Sin Autenticación**: Diseñado para uso local sin complejidad adicional
-- **Base de Datos PostgreSQL**: Conexión directa a PostgreSQL
+- **Complete CRUD**: Create, Read, Update and Delete employees
+- **Modern Interface**: Responsive design with Tailwind CSS 4
+- **Dynamic Avatars**: Automatic avatar generation using DiceBear API
+- **No Authentication**: Designed for local use without added complexity
+- **Database Support**: Works with both MySQL and PostgreSQL
 
-## Requisitos Previos
+## Prerequisites
 
-- Node.js (v18 o superior)
-- MySQL 8.0+ o PostgreSQL (elige uno)
-- npm o pnpm
+- Node.js (v18 or higher)
+- MySQL 8.0+ or PostgreSQL (choose one)
+- npm or pnpm
 
-## 🚀 Instalación Rápida (MySQL - RECOMENDADO)
+## 🚀 Quick Install (MySQL - RECOMMENDED)
 
-### Opción A: Todo en un comando (MySQL)
-
-**¡La forma más fácil! No necesitas crear nada manualmente.**
+### Option A: MySQL Setup
 
 ```bash
-# 1. Importar base de datos (crea TODO automáticamente)
+# 1. Create MySQL user
+mysql -u root -p
+```
+
+Inside MySQL console:
+```sql
+CREATE USER IF NOT EXISTS 'admin_rrhh'@'localhost' IDENTIFIED BY 'Rrhh2024$ecure';
+GRANT ALL PRIVILEGES ON *.* TO 'admin_rrhh'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+```bash
+# 2. Import database
 mysql -u root -p < empresa_rrhh_export_completo.sql
 
-# 2. Instalar dependencias
+# 3. Install dependencies
 npm install
 
-# 3. Configurar variables de entorno
+# 4. Configure environment variables
 cp .env.mysql.example .env
 
-# 4. Cambiar imports en archivos API
-# En src/pages/api/empleados/index.ts
-# En src/pages/api/empleados/[id].ts
-# Cambiar: import { db } from '../../../lib/db';
-# Por:     import { db } from '../../../lib/db-mysql';
+# 5. Update imports in API files
+# In src/pages/api/empleados/index.ts
+# In src/pages/api/empleados/[id].ts
+# Change: import { db } from '../../../lib/db';
+# To:     import { db } from '../../../lib/db-mysql';
 
-# 5. Iniciar aplicación
+# 6. Start application
 npm run dev
 ```
 
-**¡Listo!** La base de datos incluye 5 empleados de ejemplo.
+**Done!** Database includes 5 sample employees.
 
-**Credenciales creadas automáticamente:**
+**Database credentials:**
 - Host: `localhost`
-- Puerto: `3306`
-- Base de datos: `empresa_rrhh`
-- Usuario: `admin_rrhh`
-- Contraseña: `Rrhh2024$ecure`
+- Port: `3306`
+- Database: `empresa_rrhh`
+- User: `admin_rrhh`
+- Password: `Rrhh2024$ecure`
 
 ---
 
-## Instalación Manual (PostgreSQL)
+## Manual Setup (PostgreSQL)
 
-### 1. Clonar el repositorio
+### 1. Clone Repository
 
 ```bash
-git clone <tu-repositorio>
+git clone <your-repository>
 cd employee-database-practice
 ```
 
-### 2. Instalar dependencias
+### 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Configurar la base de datos
+### 3. Setup Database
 
-Crea una base de datos en PostgreSQL y ejecuta el siguiente script SQL:
+Create a PostgreSQL database and run this SQL script:
 
 ```sql
 CREATE TABLE empleados (
@@ -82,82 +93,83 @@ CREATE TABLE empleados (
 );
 ```
 
-### 4. Configurar variables de entorno
+### 4. Configure Environment Variables
 
-Copia el archivo `.env.example` a `.env`:
+Copy `.env.example` to `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Edita el archivo `.env` con los datos de tu base de datos local:
+Edit `.env` file with your database credentials:
 
 ```env
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=empleados_db
 DB_USER=postgres
-DB_PASSWORD=tu_password
+DB_PASSWORD=your_password
 ```
 
-## Uso
+## Usage
 
-### Modo Desarrollo
+### Development Mode
 
 ```bash
 npm run dev
 ```
 
-La aplicación estará disponible en `http://localhost:4321`
+Application will be available at `http://localhost:4321`
 
-### Compilar para Producción
+### Build for Production
 
 ```bash
 npm run build
 ```
 
-### Vista Previa de Producción
+### Production Preview
 
 ```bash
 npm run preview
 ```
 
-## Estructura del Proyecto
+## Project Structure
 
 ```
 employee-database-practice/
 ├── src/
 │   ├── layouts/
-│   │   └── Layout.astro          # Layout principal
+│   │   └── Layout.astro          # Main layout
 │   ├── lib/
-│   │   └── db.ts                 # Módulo de conexión a base de datos
+│   │   ├── db.ts                 # PostgreSQL connection module
+│   │   └── db-mysql.ts           # MySQL connection module
 │   ├── pages/
 │   │   ├── api/
 │   │   │   └── empleados/
 │   │   │       ├── index.ts      # API endpoints (GET, POST)
 │   │   │       └── [id].ts       # API endpoints (GET, PUT, DELETE)
-│   │   └── index.astro           # Página principal
-│   └── env.d.ts                  # Tipos TypeScript para variables de entorno
-├── .env.example                   # Ejemplo de variables de entorno
-├── astro.config.mjs              # Configuración de Astro
-├── tailwind.config.mjs           # Configuración de Tailwind
-├── tsconfig.json                 # Configuración de TypeScript
+│   │   └── index.astro           # Main page
+│   └── env.d.ts                  # TypeScript types for environment variables
+├── .env.example                   # Environment variables example
+├── astro.config.mjs              # Astro configuration
+├── tailwind.config.mjs           # Tailwind configuration
+├── tsconfig.json                 # TypeScript configuration
 └── package.json
 ```
 
 ## API Endpoints
 
-### Empleados
+### Employees
 
-- `GET /api/empleados` - Obtener todos los empleados
-- `POST /api/empleados` - Crear un nuevo empleado
-- `GET /api/empleados/:id` - Obtener un empleado por ID
-- `PUT /api/empleados/:id` - Actualizar un empleado
-- `DELETE /api/empleados/:id` - Eliminar un empleado
+- `GET /api/empleados` - Get all employees
+- `POST /api/empleados` - Create a new employee
+- `GET /api/empleados/:id` - Get employee by ID
+- `PUT /api/empleados/:id` - Update employee
+- `DELETE /api/empleados/:id` - Delete employee
 
-### Ejemplo de uso de la API
+### API Usage Example
 
-#### Crear un empleado
+#### Create an employee
 
 ```bash
 curl -X POST http://localhost:4321/api/empleados \
@@ -170,60 +182,60 @@ curl -X POST http://localhost:4321/api/empleados \
   }'
 ```
 
-## Funcionalidades de la Interfaz
+## Interface Features
 
-### Listado de Empleados
+### Employee List
 
-- Visualización en tarjetas con diseño moderno
-- Avatar único generado automáticamente para cada empleado
-- Información completa: nombre, apellido, email y dirección
+- Modern card-based design
+- Unique avatar generated automatically for each employee
+- Complete information: name, surname, email and address
 
-### Agregar Empleado
+### Add Employee
 
-1. Clic en el botón "Agregar Nuevo Empleado"
-2. Completar el formulario modal
-3. Clic en "Guardar"
+1. Click "Agregar Nuevo Empleado" button
+2. Fill out the modal form
+3. Click "Guardar"
 
-### Editar Empleado
+### Edit Employee
 
-1. Clic en el botón "Editar" en la tarjeta del empleado
-2. Modificar los datos en el formulario modal
-3. Clic en "Guardar"
+1. Click "Editar" button on employee card
+2. Modify data in modal form
+3. Click "Guardar"
 
-### Eliminar Empleado
+### Delete Employee
 
-1. Clic en el botón "Eliminar" en la tarjeta del empleado
-2. Confirmar la eliminación en el diálogo
+1. Click "Eliminar" button on employee card
+2. Confirm deletion in dialog
 
-## Avatares
+## Avatars
 
-Los avatares se generan automáticamente usando la API de DiceBear (https://api.dicebear.com/).
-Cada empleado tiene un avatar único basado en su nombre y apellido.
+Avatars are automatically generated using DiceBear API (https://api.dicebear.com/).
+Each employee has a unique avatar based on their name and surname.
 
-## Tecnologías Utilizadas
+## Technologies Used
 
-- **Astro.js**: Framework web moderno
-- **Tailwind CSS 4**: Framework de CSS utility-first
-- **TypeScript**: Tipado estático para JavaScript
-- **MySQL / PostgreSQL**: Base de datos relacional (soporta ambas)
-- **mysql2**: Cliente MySQL para Node.js
-- **node-postgres (pg)**: Cliente PostgreSQL para Node.js
-- **DiceBear API**: Generación de avatares
+- **Astro.js**: Modern web framework
+- **Tailwind CSS 4**: Utility-first CSS framework
+- **TypeScript**: Static typing for JavaScript
+- **MySQL / PostgreSQL**: Relational database (supports both)
+- **mysql2**: MySQL client for Node.js
+- **node-postgres (pg)**: PostgreSQL client for Node.js
+- **DiceBear API**: Avatar generation
 
-## Solución de Problemas
+## Troubleshooting
 
-### Error de conexión a la base de datos
+### Database connection error
 
-Verifica que:
-- PostgreSQL esté corriendo
-- Las credenciales en `.env` sean correctas
-- La base de datos y la tabla existan
-- El usuario tenga permisos suficientes
+Verify that:
+- MySQL/PostgreSQL is running
+- Credentials in `.env` are correct
+- Database and table exist
+- User has sufficient permissions
 
-### Error al cargar empleados
+### Error loading employees
 
-Revisa la consola del navegador y los logs del servidor para más detalles.
+Check browser console and server logs for details.
 
-## Licencia
+## License
 
 MIT

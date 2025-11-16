@@ -1,36 +1,48 @@
-# ⚡ Inicio Rápido - 5 minutos
+# Quick Start - 5 Minutes
 
-## Requisitos
-- MySQL instalado
-- Node.js instalado
+## Requirements
+- MySQL installed
+- Node.js installed
 
-## Paso 1: Importar base de datos
+## Step 1: Create MySQL User
+
+```bash
+mysql -u root -p
+```
+
+Inside MySQL console:
+
+```sql
+CREATE USER IF NOT EXISTS 'admin_rrhh'@'localhost' IDENTIFIED BY 'Rrhh2024$ecure';
+GRANT ALL PRIVILEGES ON *.* TO 'admin_rrhh'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+## Step 2: Import Database
 
 ```bash
 mysql -u root -p < empresa_rrhh_export_completo.sql
 ```
 
-Cuando te pida la contraseña, ingresa tu contraseña de **root** de MySQL.
+**✅ This automatically creates:**
+- ✅ Database `empresa_rrhh`
+- ✅ Table `empleados`
+- ✅ 5 sample employees
 
-**✅ Esto crea automáticamente:**
-- ✅ La base de datos `empresa_rrhh`
-- ✅ El usuario `admin_rrhh` con contraseña `Rrhh2024$ecure`
-- ✅ La tabla `empleados`
-- ✅ 5 empleados de ejemplo
-
-## Paso 2: Instalar dependencias
+## Step 3: Install Dependencies
 
 ```bash
 npm install
 ```
 
-## Paso 3: Configurar variables de entorno
+## Step 4: Configure Environment Variables
 
 ```bash
 cp .env.mysql.example .env
 ```
 
-El archivo `.env` ya contiene las credenciales correctas:
+The `.env` file contains the correct credentials:
 ```env
 DB_HOST=localhost
 DB_PORT=3306
@@ -39,39 +51,39 @@ DB_USER=admin_rrhh
 DB_PASSWORD=Rrhh2024$ecure
 ```
 
-## Paso 4: Actualizar imports en archivos API
+## Step 5: Update API Imports
 
-Abre estos 2 archivos y cambia el import:
+Open these 2 files and change the import:
 
-**Archivo 1:** `src/pages/api/empleados/index.ts`
+**File 1:** `src/pages/api/empleados/index.ts`
 ```typescript
-// Cambiar esta línea:
+// Change this line:
 import { db } from '../../../lib/db';
 
-// Por esta:
+// To this:
 import { db } from '../../../lib/db-mysql';
 ```
 
-**Archivo 2:** `src/pages/api/empleados/[id].ts`
+**File 2:** `src/pages/api/empleados/[id].ts`
 ```typescript
-// Cambiar esta línea:
+// Change this line:
 import { db } from '../../../lib/db';
 
-// Por esta:
+// To this:
 import { db } from '../../../lib/db-mysql';
 ```
 
-## Paso 5: Iniciar la aplicación
+## Step 6: Start Application
 
 ```bash
 npm run dev
 ```
 
-## 🎉 ¡Listo!
+## 🎉 Done!
 
-Abre tu navegador en: **http://localhost:4321**
+Open your browser at: **http://localhost:4321**
 
-Verás 5 empleados de ejemplo:
+You will see 5 sample employees:
 - Jaime Vélez
 - Eliecer Roldan
 - Diego Perez
@@ -80,38 +92,38 @@ Verás 5 empleados de ejemplo:
 
 ---
 
-## Verificar que todo funciona
+## Verify Everything Works
 
-Si quieres verificar que la base de datos se importó correctamente:
+To verify the database was imported correctly:
 
 ```bash
 mysql -u admin_rrhh -p
-# Contraseña: Rrhh2024$ecure
+# Password: Rrhh2024$ecure
 ```
 
-Dentro de MySQL:
+Inside MySQL:
 ```sql
 USE empresa_rrhh;
 SELECT * FROM empleados;
 ```
 
-Deberías ver los 5 empleados listados.
+You should see the 5 employees listed.
 
 ---
 
-## ¿Problemas?
+## Troubleshooting
 
 ### Error: "Access denied for user 'admin_rrhh'"
 
-Revisa que tu archivo `.env` tenga las credenciales correctas.
+Make sure you completed Step 1 (create user) and your `.env` file has the correct credentials.
 
 ### Error: "Unknown database 'empresa_rrhh'"
 
-Ejecuta nuevamente el paso 1 (importar base de datos).
+Run Step 2 again (import database).
 
-### Error en el navegador: "Failed to fetch"
+### Browser error: "Failed to fetch"
 
-Verifica que:
-1. MySQL esté corriendo: `sudo systemctl status mysql`
-2. Los imports estén actualizados (Paso 4)
-3. Las variables de entorno estén correctas (Paso 3)
+Verify that:
+1. MySQL is running: `sudo systemctl status mysql`
+2. Imports are updated (Step 5)
+3. Environment variables are correct (Step 4)
